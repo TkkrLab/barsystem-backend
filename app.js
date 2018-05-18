@@ -52,9 +52,7 @@ var products = new Products({
 products.registerRpcMethods(rpc, "products");
 
 var transactions = new Transactions({
-	database: database,
-	persons: persons,
-	products: products
+	database: database
 });
 transactions.registerRpcMethods(rpc, "transactions");
 

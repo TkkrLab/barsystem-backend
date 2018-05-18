@@ -12,13 +12,33 @@ class Persons {
 			process.exit(1);
 		}
 	}
+	
+	list(params) {
+		return new Promise((resolve, reject) => {
+			var active = 1;
+			if ( (params.length > 0) && (params[0]==false) ) active = 0;
+			if ( params.length > 1) return reject("invalid parameter count");
+			
+			var table = this._opts.database.table('barsystem_person');
+			return table.selectRecords({"active":active}).then((records) => {
+				var result = [];
+				for (var i = 0; i<records.length; i++) {
+					result.push(records[i].getFields());
+				}
+				return resolve(result);
+			}).catch((error) => { reject(error); });
+		});
+	}
 
 	find(params) {
 		return new Promise((resolve, reject) => {
-			if(params.length != 1) return reject("invalid parameter count");
+			if((params.length > 2) || (params.length < 1)) return reject("invalid parameter count");
+			var active = 1;
+			if ( (params.length > 1) && (params[1]==false) ) active = 0;
+						   
 			if(typeof params[0] !== "string") return reject("invalid parameter type");
 			var table = this._opts.database.table('barsystem_person');
-			return table.selectRecords({"nick_name":params[0]}).then((records) => {
+			return table.selectRecords({"nick_name":params[0], "active":active}).then((records) => {
 				var result = [];
 				for (var i = 0; i<records.length; i++) {
 					result.push(records[i].getIndex());
@@ -127,6 +147,7 @@ class Persons {
 
 	registerRpcMethods(rpc, prefix="persons") {
 		if (prefix!="") prefix = prefix + "/";
+		rpc.addMethod(prefix+"list", this.list.bind(this));
 		rpc.addMethod(prefix+"find", this.find.bind(this));
 		rpc.addMethod(prefix+"details", this.details.bind(this));
 		rpc.addMethod(prefix+"add", this.add.bind(this));

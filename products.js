@@ -13,10 +13,24 @@ class Products {
 		}
 	}
 	
+	details(params) {
+		return new Promise((resolve, reject) => {
+			if(params.length != 1) return reject("invalid parameter count");
+			var table = this._opts.database.table('barsystem_product');
+			return table.selectRecords({"id":parseInt(params[0])}).then((records) => {
+				var result = [];
+				for (var i = 0; i<records.length; i++) {
+					result.push(records[i].getFields());
+				}
+				return resolve(result);
+			}).catch((error) => { reject(error); });
+		});
+	}
+	
 	stock(params) {
 		return new Promise((resolve, reject) => {
 			if(params.length > 1)  return reject("invalid parameter count");
-			var where = {'stock':{'>':'0'}};
+			var where = {'stock':{'>':'0'}, "type":"normal"};
 			if ((params.length == 0) || (params[0])) where['active'] = true;
 			var table = this._opts.database.table('barsystem_product');
 			return table.selectRecords(where, "ORDER BY `stock` DESC").then((records) => {
@@ -58,17 +72,11 @@ class Products {
 
 	list(params) {
 		return new Promise((resolve, reject) => {
-			var type = "normal";
-			if (params.length > 0) {
-				if (params[0]!=null) type = params[0];
-			}
 			var active = 1;
-			if (params.length > 1) {
-				if (params[1]!=null) active = parseInt(params[1]);
-			}
+			if ( (params.length > 0) && (params[0]==false) ) active = 0;
 			
 			var table = this._opts.database.table('barsystem_base_product');
-			return table.selectRecords({"type":type, "active":active}).then((records) => {
+			return table.selectRecords({"type":"normal", "active":active}).then((records) => {
 				var result = [];
 				for (var i = 0; i<records.length; i++) {
 					result.push(records[i].getFields());
@@ -77,11 +85,42 @@ class Products {
 			}).catch((error) => { reject(error); });
 		});
 	}
-
+	
+	find(params) {
+		return new Promise((resolve, reject) => {
+			if((params.length > 2) || (params.length < 1)) return reject("invalid parameter count");
+			var active = 1;
+			if ( (params.length > 1) && (params[1]==false) ) active = 0;
+			
+			var query = {"active":active, "type":"normal"};
+			   
+			var barcode = parseInt(params[0]);
+			if ((String(barcode) === params[0]) && (barcode >= 1000000000000)) {
+				//It's a barcode...
+				query["barcode"] = barcode;
+			} else {
+				//Not a barcode...
+				query["name"] = params[0];
+			}
+						   
+			if(typeof params[0] !== "string") return reject("invalid parameter type");
+			var table = this._opts.database.table('barsystem_base_product');
+			return table.selectRecords(query).then((records) => {
+				var result = [];
+				for (var i = 0; i<records.length; i++) {
+					result.push(records[i].getIndex());
+				}
+				return resolve(result);
+			}).catch((error) => { reject(error); });
+		});
+	}
+	
 	registerRpcMethods(rpc, prefix="products") {
 		if (prefix!="") prefix = prefix + "/";
-		rpc.addMethod(prefix+"stock", this.stock.bind(this));
 		rpc.addMethod(prefix+"list", this.list.bind(this));
+		rpc.addMethod(prefix+"find", this.find.bind(this));
+		rpc.addMethod(prefix+"stock", this.stock.bind(this));
+		rpc.addMethod(prefix+"details", this.details.bind(this));
 	}
 }
 
