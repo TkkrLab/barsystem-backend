@@ -26,7 +26,7 @@ class Persons {
 					result.push(records[i].getFields());
 				}
 				return resolve(result);
-			}).catch((error) => { reject(error); });
+			}).catch((error) => { return reject(error); });
 		});
 	}
 
@@ -44,7 +44,7 @@ class Persons {
 					result.push(records[i].getIndex());
 				}
 				return resolve(result);
-			}).catch((error) => { reject(error); });
+			}).catch((error) => { return reject(error); });
 		});
 	}
 
@@ -53,12 +53,10 @@ class Persons {
 			if(params.length != 1) return reject("invalid parameter count");
 			var table = this._opts.database.table('barsystem_person');
 			return table.selectRecords({"id":parseInt(params[0])}).then((records) => {
-				var result = [];
-				for (var i = 0; i<records.length; i++) {
-					result.push(records[i].getFields());
-				}
+				if (records.length > 1) return reject("Duplicate id error!");
+				var result = records[0].getFields();
 				return resolve(result);
-			}).catch((error) => { reject(error); });
+			}).catch((error) => { return reject(error); });
 		});
 	}
 	
@@ -112,6 +110,18 @@ class Persons {
 		});
 	}
 	
+	getAmount(params) {
+		return new Promise((resolve, reject) => {
+			if(params.length != 1) return reject("invalid parameter count");
+			var table = this._opts.database.table('barsystem_person');
+			return table.selectRecords({"id":parseInt(params[0])}).then((records) => {
+				if (records.length > 1) return reject("Duplicate id error!");
+				var result = records[0].getField('amount');
+				return resolve(result);
+			}).catch((error) => { return reject(error); });
+		});
+	}
+		
 	blame(params) {
 		return new Promise((resolve, reject) => {
 			if(params.length > 1)  return reject("invalid parameter count");
@@ -154,6 +164,7 @@ class Persons {
 		rpc.addMethod(prefix+"blame", this.blame.bind(this));
 		rpc.addMethod(prefix+"saldo/total", this.saldoTotal.bind(this));
 		rpc.addMethod(prefix+"saldo/set", this.setAmount.bind(this));
+		rpc.addMethod(prefix+"saldo/get", this.getAmount.bind(this));
 	}
 }
 

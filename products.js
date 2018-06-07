@@ -18,10 +18,8 @@ class Products {
 			if(params.length != 1) return reject("invalid parameter count");
 			var table = this._opts.database.table('barsystem_product');
 			return table.selectRecords({"id":parseInt(params[0])}).then((records) => {
-				var result = [];
-				for (var i = 0; i<records.length; i++) {
-					result.push(records[i].getFields());
-				}
+				if (records.length > 1) return reject("Duplicate id error!");
+				var result = records[0].getFields();
 				return resolve(result);
 			}).catch((error) => { reject(error); });
 		});
@@ -75,7 +73,7 @@ class Products {
 			var active = 1;
 			if ( (params.length > 0) && (params[0]==false) ) active = 0;
 			
-			var table = this._opts.database.table('barsystem_base_product');
+			var table = this._opts.database.table('barsystem_product');
 			return table.selectRecords({"type":"normal", "active":active}).then((records) => {
 				var result = [];
 				for (var i = 0; i<records.length; i++) {
@@ -100,11 +98,11 @@ class Products {
 				query["barcode"] = barcode;
 			} else {
 				//Not a barcode...
-				query["name"] = params[0];
+				query["name"] = {"LIKE":"%"+params[0]+"%"};
 			}
 						   
 			if(typeof params[0] !== "string") return reject("invalid parameter type");
-			var table = this._opts.database.table('barsystem_base_product');
+			var table = this._opts.database.table('barsystem_product');
 			return table.selectRecords(query).then((records) => {
 				var result = [];
 				for (var i = 0; i<records.length; i++) {

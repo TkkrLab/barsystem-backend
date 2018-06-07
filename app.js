@@ -6,7 +6,7 @@ const Database = require('./lib/db.js');
 const Ping = require('./ping.js');
 const Persons = require('./persons.js');
 const Products = require('./products.js');
-const Transactions = require('./transactions.js');
+const Journal = require('./journal.js');
 const Deposit = require('./deposit.js');
 const password = require('../password.js');
 
@@ -51,14 +51,14 @@ var products = new Products({
 });
 products.registerRpcMethods(rpc, "products");
 
-var transactions = new Transactions({
+var journal = new Journal({
 	database: database
 });
-transactions.registerRpcMethods(rpc, "transactions");
+journal.registerRpcMethods(rpc, "journal");
 
-var deposit = new Deposit({
+/*var deposit = new Deposit({
 	database: database,
 	persons: persons,
 	transactions: transactions
 });
-deposit.registerRpcMethods(rpc, "deposit");
+deposit.registerRpcMethods(rpc, "deposit");*/
