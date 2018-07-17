@@ -1,6 +1,6 @@
 "use strict";
 
-const precisionRound = require('./lib/precisionRound.js');
+const precisionRound = require('../lib/precisionRound.js');
 
 class Deposit {
 	constructor(opts) {

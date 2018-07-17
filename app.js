@@ -1,14 +1,18 @@
 "use strict";
-const Rpc = require('./lib/rpc.js');
-const Webserver = require('./lib/webserver.js');
+
+//Libraries
+const Rpc        = require('./lib/rpc.js');
+const Webserver  = require('./lib/webserver.js');
 const Mqttclient = require('./lib/mqtt.js');
-const Database = require('./lib/db.js');
-const Ping = require('./ping.js');
-const Persons = require('./persons.js');
-const Products = require('./products.js');
-const Journal = require('./journal.js');
-const Deposit = require('./deposit.js');
-const password = require('../password.js');
+const Database   = require('./lib/db.js');
+const password   = require('../password.js');
+
+//Modules
+const Ping     = require('./modules/ping.js');
+const Persons  = require('./modules/persons.js');
+const Products = require('./modules/products.js');
+const Journal  = require('./modules/journal.js');
+const Deposit  = require('./modules/deposit.js');
 
 var database = new Database({
 	host: '127.0.0.1',
@@ -29,12 +33,12 @@ var webserver = new Webserver({
 	mime: 'application/json'
 });
 
-/*var mqttclient = new Mqttclient({
+var mqttclient = new Mqttclient({
 	port: 1883,
 	host: 'tkkrlab.space',
-	topic: 'rpc',
+	topic: 'test/bar',
 	rpc: rpc
-});*/
+});
 
 //database.registerRpcMethods(rpc, "db"); // <- Allows for executing raw queries. Do not enable in production!
 

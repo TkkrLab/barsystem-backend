@@ -1,7 +1,7 @@
 "use strict";
 
 const mysql = require('mysql2');
-const precisionRound = require('./lib/precisionRound.js');
+const precisionRound = require('../lib/precisionRound.js');
 
 class Journal {
 	constructor(opts) {
